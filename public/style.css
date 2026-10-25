@@ -111,3 +111,19 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
 .winner-photo{
   display:block !important;
 }
+
+/* REMOVER FOTOS GRANDES DO TOPO */
+.candidate-photo{
+  display:none !important;
+}
+
+.candidate-card{
+  grid-template-columns:1fr !important;
+  min-height:150px !important;
+}
+
+.candidate-info{
+  width:100% !important;
+  padding:16px !important;
+}
+
