@@ -185,11 +185,11 @@ function matchesAlias(name, aliases = []) {
 }
 
 function handleChat(data) {
-  console.log('[CHAT RECEBIDO]', userLabel(data), JSON.stringify(data.comment));
+  console.log('[CHAT RECEBIDO]', userLabel(data), JSON.stringify(data.content ?? data.comment));
   const messageId = data.msgId || data.messageUuid || data.common?.msgId;
   if (rememberMessage(messageId)) return;
 
-  const comment = String(data.comment || '').trim();
+  const comment = String(data.content ?? data.comment ?? '').trim();
   const normalized = normalizeText(comment);
   const leftCode = normalizeText(state.config.leftCode);
   const rightCode = normalizeText(state.config.rightCode);
