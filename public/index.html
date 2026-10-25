@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css?v=painel-limpo-50"bg-glow glow-left"></div>
+  <link rel="stylesheet" href="/style.css?v=layout-fix-20"bg-glow glow-left"></div>
   <div class="bg-glow glow-right"></div>
   <div class="noise"></div>
 
@@ -163,223 +163,61 @@
 
     <div class="disclaimer">ENQUETE RECREATIVA • NÃO É RESULTADO ELEITORAL OFICIAL</div>
 
-    
-<button class="admin-toggle" id="adminToggle" type="button">
-  ⚙️ CONTROLES DA LIVE
-</button>
+    <button class="admin-toggle" id="adminToggle">⚙ CONTROLES DA LIVE</button>
 
-<section class="admin-panel hidden glass" id="adminPanel">
+    <section class="admin-panel hidden glass" id="adminPanel">
+      <div class="admin-head"><div><span class="eyebrow">PAINEL DO CRIADOR</span><h2>Controle total</h2></div><button id="closeAdmin">✕</button></div>
 
-  <div class="admin-head">
-    <div>
-      <span class="eyebrow">PAINEL DO CRIADOR</span>
-      <h2>Controles da LIVE</h2>
-    </div>
-
-    <button id="closeAdmin" type="button">✕</button>
-  </div>
-
-  <div id="authBox" class="panel-block">
-    <label>PIN administrativo</label>
-
-    <div class="row">
-      <input
-        id="pinInput"
-        inputmode="numeric"
-        placeholder="Digite seu PIN"
-      >
-
-      <button
-        id="unlockBtn"
-        class="primary"
-        type="button"
-      >
-        DESBLOQUEAR
-      </button>
-    </div>
-  </div>
-
-  <div id="adminContent" class="hidden">
-
-    <div class="panel-block">
-      <h3>Conexão TikTok LIVE</h3>
-
-      <label>@usuário que está fazendo a LIVE</label>
-
-      <input
-        id="usernameInput"
-        placeholder="ex: meuusuario"
-        autocapitalize="off"
-        autocomplete="off"
-      >
-
-      <div class="row top-gap">
-        <button
-          id="connectBtn"
-          class="primary"
-          type="button"
-        >
-          🟢 CONECTAR LIVE
-        </button>
-
-        <button
-          id="disconnectBtn"
-          type="button"
-        >
-          DESCONECTAR
-        </button>
+      <div id="authBox" class="panel-block">
+        <label>PIN administrativo</label>
+        <div class="row"><input id="pinInput" inputmode="numeric" placeholder="Digite seu PIN"><button id="unlockBtn" class="primary">DESBLOQUEAR</button></div>
       </div>
 
-      <small id="connectionMessage">
-        Desconectado
-      </small>
-    </div>
+      <div id="adminContent" class="hidden">
+        <div class="panel-block">
+          <label>@usuário que está fazendo a LIVE</label>
+          <div class="row"><input id="usernameInput" placeholder="ex: meuusuario" autocapitalize="off"><button id="connectBtn" class="primary">CONECTAR</button></div>
+          <div class="row top-gap"><button id="disconnectBtn">DESCONECTAR</button><button id="voiceBtn" class="voice-toggle">🔇 VOZ: DESLIGADA</button></div>
+          <small id="voiceStatus">Voz ainda não ativada</small>
+          <small id="connectionMessage">Desconectado</small>
+        </div>
 
-    <div class="panel-block">
-      <h3>🔊 Voz do voto</h3>
+        <div class="panel-block">
+          <h3>Teste rápido</h3>
+          <div class="test-grid">
+            <button data-test="left-comment">💬 22</button>
+            <button data-test="right-comment">💬 13</button>
+            <button data-test="left-gift">🤍🌹 Rosa Branca</button>
+            <button data-test="right-gift">🌹 Rosa</button>
+          </div>
+        </div>
 
-      <button
-        id="voiceBtn"
-        class="voice-toggle full"
-        type="button"
-      >
-        🔇 VOZ: DESLIGADA
-      </button>
+        <div class="panel-block">
+          <h3>Ajuste manual</h3>
+          <div class="test-grid">
+            <button id="minusLeft">−1 Flávio</button><button id="plusLeft">+1 Flávio</button>
+            <button id="minusRight">−1 Lula</button><button id="plusRight">+1 Lula</button>
+          </div>
+          <div class="row top-gap"><button id="resetBtn" class="danger">ZERAR</button><button id="nextRoundBtn">NOVA RODADA</button></div>
+        </div>
 
-      <small id="voiceStatus">
-        Toque para ativar a voz
-      </small>
-    </div>
+        <div class="panel-block">
+          <h3>Configuração</h3>
+          <div class="two-col">
+            <label>Nome esquerda<input id="cfgLeftName"></label>
+            <label>Nome direita<input id="cfgRightName"></label>
+            <label>Código esquerda<input id="cfgLeftCode"></label>
+            <label>Código direita<input id="cfgRightCode"></label>
+          </div>
+          <label>Presentes esquerda<textarea id="cfgLeftGifts" rows="2"></textarea></label>
+          <label>Presentes direita<textarea id="cfgRightGifts" rows="2"></textarea></label>
+          <label class="check"><input type="checkbox" id="cfgExact" checked> Só contar comentário exatamente igual ao número</label>
+          <button id="saveConfigBtn" class="primary full">SALVAR CONFIGURAÇÃO</button>
+        </div>
 
-    <div class="panel-block">
-      <h3>Teste rápido</h3>
-
-      <div class="test-grid">
-        <button type="button" data-test="left-comment">
-          💬 Testar 22
-        </button>
-
-        <button type="button" data-test="right-comment">
-          💬 Testar 13
-        </button>
-
-        <button type="button" data-test="left-gift">
-          🤍🌹 Rosa Branca
-        </button>
-
-        <button type="button" data-test="right-gift">
-          🌹 Rosa
-        </button>
+        <div class="panel-block"><h3>Últimos eventos</h3><div id="eventLog" class="event-log"></div></div>
       </div>
-    </div>
-
-    <div class="panel-block">
-      <h3>Ajuste manual</h3>
-
-      <div class="test-grid">
-        <button id="minusLeft" type="button">
-          −1 Flávio
-        </button>
-
-        <button id="plusLeft" type="button">
-          +1 Flávio
-        </button>
-
-        <button id="minusRight" type="button">
-          −1 Lula
-        </button>
-
-        <button id="plusRight" type="button">
-          +1 Lula
-        </button>
-      </div>
-
-      <div class="row top-gap">
-        <button
-          id="resetBtn"
-          class="danger"
-          type="button"
-        >
-          🗑 ZERAR VOTOS
-        </button>
-
-        <button
-          id="nextRoundBtn"
-          type="button"
-        >
-          🔄 NOVA RODADA
-        </button>
-      </div>
-    </div>
-
-    <div class="panel-block">
-      <h3>Configuração</h3>
-
-      <div class="two-col">
-        <label>
-          Nome esquerda
-          <input id="cfgLeftName">
-        </label>
-
-        <label>
-          Nome direita
-          <input id="cfgRightName">
-        </label>
-
-        <label>
-          Número esquerda
-          <input id="cfgLeftCode">
-        </label>
-
-        <label>
-          Número direita
-          <input id="cfgRightCode">
-        </label>
-      </div>
-
-      <label>
-        Presentes esquerda
-        <textarea
-          id="cfgLeftGifts"
-          rows="2"
-        ></textarea>
-      </label>
-
-      <label>
-        Presentes direita
-        <textarea
-          id="cfgRightGifts"
-          rows="2"
-        ></textarea>
-      </label>
-
-      <label class="check">
-        <input
-          type="checkbox"
-          id="cfgExact"
-          checked
-        >
-
-        Só contar comentário exatamente igual ao número
-      </label>
-
-      <button
-        id="saveConfigBtn"
-        class="primary full"
-        type="button"
-      >
-        💾 SALVAR CONFIGURAÇÃO
-      </button>
-    </div>
-
-    <div class="panel-block">
-      <h3>Últimos eventos</h3>
-      <div id="eventLog" class="event-log"></div>
-    </div>
-
-  </div>
-</section>
-
+    </section>
   </main>
 
   <div class="winner-overlay" id="winnerOverlay">
@@ -399,11 +237,5 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js?v=12></script>
-
-
-
-
-
-
 </body>
 </html>
