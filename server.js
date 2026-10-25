@@ -52,6 +52,7 @@ let connection = null, reconnectTimer = null, resetWinnerTimer = null, manuallyD
 const processedMessageIds = new Map();
 let saveTimer = null, stateEmitTimer = null;
 const voteBatches = { flavio: { amount: 0, last: null, timer: null }, lula: { amount: 0, last: null, timer: null } };
+let resetSerial = 0;
 
 function scheduleSave() {
   clearTimeout(saveTimer);
@@ -66,7 +67,7 @@ function scheduleSave() {
 }
 function normalizeText(value = '') { return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase(); }
 function publicState() {
-  return { votes: state.votes, participants: participantSet.size, round: state.round, winner: state.winner,
+  return { votes: state.votes, participants: participantSet.size, round: state.round, winner: state.winner, resetSerial,
     targetVotes: TARGET_VOTES, connection: state.connection, config: state.config,
     lastActivity: state.lastActivity, recentActivity: state.recentActivity };
 }
@@ -98,12 +99,21 @@ function queueVoteBatch(side, amount, activity) {
   if (batch.timer) return;
   batch.timer = setTimeout(() => {
     batch.timer = null; if (!batch.amount) return;
-    io.emit('vote-batch', { side, amount: batch.amount, totalVotes: state.votes[side], participantCount: participantSet.size,
+    io.emit('vote-batch', { side, amount: batch.amount, totalVotes: state.votes[side], participantCount: participantSet.size, resetSerial,
       user: batch.last?.user || 'usuario', detail: batch.last?.detail || '', type: batch.last?.type || 'vote',
       count: batch.last?.count || 1, time: new Date().toISOString() });
     batch.amount = 0; batch.last = null;
   }, 80);
 }
+function clearVoteBatches() {
+  for (const batch of Object.values(voteBatches)) {
+    clearTimeout(batch.timer);
+    batch.timer = null;
+    batch.amount = 0;
+    batch.last = null;
+  }
+}
+
 function finishWinner(side) {
   if (state.winner) return;
   const isFlavio = side === 'flavio';
@@ -113,6 +123,8 @@ function finishWinner(side) {
   scheduleSave(); emitStateNow(); io.emit('winner', state.winner);
   clearTimeout(resetWinnerTimer);
   resetWinnerTimer = setTimeout(() => {
+    clearVoteBatches();
+    resetSerial += 1;
     state.votes = { flavio: 0, lula: 0 }; participantSet = new Set(); state.participants = [];
     state.round += 1; state.winner = null; state.lastActivity = null; state.recentActivity = [];
     scheduleSave(); emitStateNow();
@@ -186,7 +198,15 @@ async function connectTikTok(username, isReconnect = false) {
 
 const app = express(); const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' }, transports: ['websocket', 'polling'] });
-app.use(express.json({ limit: '100kb' })); app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: 0,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+}));
 app.get('/health', (_req, res) => res.status(200).json({ ok: true }));
 app.get('/api/state', (_req, res) => res.json(publicState()));
 app.post('/api/admin/check', (req, res) => { if (!auth(req)) return res.status(401).json({ ok: false, error: 'PIN incorreto' }); res.json({ ok: true }); });
@@ -231,9 +251,25 @@ app.post('/api/manual-adjust', (req, res) => {
 });
 app.post('/api/reset', (req, res) => {
   if (!auth(req)) return res.status(401).json({ ok: false, error: 'PIN incorreto' });
-  clearTimeout(resetWinnerTimer); state.votes = { flavio: 0, lula: 0 }; participantSet = new Set(); state.participants = [];
-  state.winner = null; state.lastActivity = null; state.recentActivity = []; if (req.body.nextRound === true) state.round += 1;
-  scheduleSave(); emitStateNow(); res.json({ ok: true });
+  clearTimeout(resetWinnerTimer);
+  clearVoteBatches();
+  clearTimeout(stateEmitTimer);
+  stateEmitTimer = null;
+  resetSerial += 1;
+
+  state.votes = { flavio: 0, lula: 0 };
+  participantSet = new Set();
+  state.participants = [];
+  state.winner = null;
+  state.lastActivity = null;
+  state.recentActivity = [];
+
+  if (req.body.nextRound === true) state.round += 1;
+
+  scheduleSave();
+  emitStateNow();
+
+  res.json({ ok: true, state: publicState() });
 });
 io.on('connection', socket => socket.emit('state', publicState()));
 server.listen(PORT, '0.0.0.0', () => console.log(`Urna LIVE V4 em http://localhost:${PORT}`));

@@ -12,6 +12,7 @@ let pendingVoice = null;
 let lastVoiceAt = 0;
 let winnerKey = '';
 let audioCtx = null;
+let lastResetSerial = -1;
 
 const anim = {
   flavio: { running: false, pending: null },
@@ -170,7 +171,47 @@ function sideMeta(side, state = currentState) {
   return { key: 'lula', ui: 'Right', code: c.rightCode || '13', name: c.rightName || 'Lula', photo: '/lula.jpg' };
 }
 
+function hardResetVisuals() {
+  for (const side of ['flavio', 'lula']) {
+    const slot = anim[side];
+
+    if (slot) {
+      slot.pending = null;
+      slot.running = false;
+    }
+
+    const meta = sideMeta(side);
+    const urna = $(`urn${meta.ui}`);
+    const screen = $(`screen${meta.ui}`);
+    const hand = $(`hand${meta.ui}`);
+    const pop = $(`pop${meta.ui}`);
+
+    hand?.classList.remove('visible', 'tap');
+    pop?.classList.remove('show');
+    urna?.classList.remove('flash');
+    screen?.classList.remove('success', 'active');
+
+    const liveTag = $(
+      side === 'flavio'
+        ? 'leftLiveTag'
+        : 'rightLiveTag'
+    );
+
+    if (liveTag) liveTag.textContent = 'AGUARDANDO';
+  }
+}
+
 function renderState(state) {
+  const incomingResetSerial = Number(state.resetSerial ?? 0);
+
+  if (
+    lastResetSerial !== -1 &&
+    incomingResetSerial !== lastResetSerial
+  ) {
+    hardResetVisuals();
+  }
+
+  lastResetSerial = incomingResetSerial;
   currentState = state;
   const l = Number(state.votes?.flavio || 0);
   const r = Number(state.votes?.lula || 0);
@@ -248,6 +289,13 @@ function escapeHtml(s) {
 
 function applyBatch(batch) {
   if (!currentState) return;
+
+  if (
+    Number(batch.resetSerial ?? -1) !==
+    Number(currentState.resetSerial ?? 0)
+  ) {
+    return;
+  }
   currentState.votes = currentState.votes || { flavio: 0, lula: 0 };
   currentState.votes[batch.side] = batch.totalVotes;
   if (Number.isFinite(batch.participantCount)) currentState.participants = batch.participantCount;
@@ -438,8 +486,36 @@ $('plusLeft').onclick = () => manual('flavio', 1);
 $('plusRight').onclick = () => manual('lula', 1);
 $('minusLeft').onclick = () => manual('flavio', -1);
 $('minusRight').onclick = () => manual('lula', -1);
-$('resetBtn').onclick = async () => { if (!confirm('Zerar os votos desta rodada?')) return; try { await api('/api/reset', { nextRound: false }); toast('Votos zerados'); } catch (e) { toast(e.message); } };
-$('nextRoundBtn').onclick = async () => { if (!confirm('Iniciar nova rodada?')) return; try { await api('/api/reset', { nextRound: true }); toast('Nova rodada iniciada'); } catch (e) { toast(e.message); } };
+$('resetBtn').onclick = async () => {
+  if (!confirm('Zerar os votos desta rodada?')) return;
+
+  try {
+    const d = await api('/api/reset', { nextRound: false });
+
+    hardResetVisuals();
+
+    if (d.state) renderState(d.state);
+
+    toast('Votos zerados');
+  } catch (e) {
+    toast(e.message);
+  }
+};
+$('nextRoundBtn').onclick = async () => {
+  if (!confirm('Iniciar nova rodada?')) return;
+
+  try {
+    const d = await api('/api/reset', { nextRound: true });
+
+    hardResetVisuals();
+
+    if (d.state) renderState(d.state);
+
+    toast('Nova rodada iniciada');
+  } catch (e) {
+    toast(e.message);
+  }
+};
 $('saveConfigBtn').onclick = async () => {
   const payload = {
     leftName: $('cfgLeftName').value.trim(), rightName: $('cfgRightName').value.trim(),
