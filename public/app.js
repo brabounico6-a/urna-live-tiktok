@@ -122,24 +122,74 @@ function voiceSupported() {
 }
 
 async function enableVoice() {
-  voiceEnabled = true;
-  localStorage.setItem('urnaVoiceEnabled', '1');
   try {
-    const a = localVoices.flavio;
-    a.volume = 0.001;
-    await a.play();
-    a.pause();
-    a.currentTime = 0;
-    a.volume = 1;
-  } catch {}
+    await unlockAudio();
+
+    const audio = localVoices.flavio;
+    audio.volume = 0.001;
+
+    await audio.play();
+
+    audio.pause();
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    voiceEnabled = true;
+    localStorage.setItem('urnaVoiceEnabled', '1');
+
+    updateVoiceUi();
+    toast('Voz ativada');
+  } catch {
+    voiceEnabled = false;
+    localStorage.removeItem('urnaVoiceEnabled');
+
+    updateVoiceUi();
+    toast('Não foi possível liberar a voz. Toque novamente.');
+  }
+}
+
+function disableVoice() {
+  voiceEnabled = false;
+  localStorage.removeItem('urnaVoiceEnabled');
+
+  if (activeVoiceAudio) {
+    try {
+      activeVoiceAudio.pause();
+      activeVoiceAudio.currentTime = 0;
+    } catch {}
+  }
+
+  activeVoiceAudio = null;
+
   updateVoiceUi();
-  toast('Voz local ativada');
+  toast('Voz desativada');
+}
+
+function toggleVoice() {
+  if (voiceEnabled) {
+    disableVoice();
+  } else {
+    enableVoice();
+  }
 }
 
 function updateVoiceUi() {
   if (!$('voiceStatus')) return;
-  $('voiceStatus').textContent = voiceEnabled ? 'Voz local ativada • sem fila para evitar atraso' : 'Toque em ATIVAR VOZ uma vez';
-  if ($('voiceBtn')) $('voiceBtn').textContent = voiceEnabled ? '🔊 VOZ ATIVADA' : '🔊 ATIVAR VOZ';
+
+  $('voiceStatus').textContent = voiceEnabled
+    ? '✅ Voz ligada • anuncia o voto'
+    : '🔇 Voz desligada • toque para ativar';
+
+  if ($('voiceBtn')) {
+    $('voiceBtn').textContent = voiceEnabled
+      ? '🔊 VOZ: LIGADA'
+      : '🔇 VOZ: DESLIGADA';
+
+    $('voiceBtn').classList.toggle(
+      'voice-on',
+      voiceEnabled
+    );
+  }
 }
 
 function playLocalVoice(side) {
@@ -350,7 +400,21 @@ async function animateVote(side, batch) {
   if (!code) return;
 
   pop.querySelector('span').textContent = `@${batch.user || 'usuario'}`;
-  pop.querySelector('strong').textContent = `+${batch.amount || 1} VOTO${Number(batch.amount || 1) > 1 ? 'S' : ''}`;
+  const voteAmount = Number(batch.amount || 1);
+  const voteWord = `+${voteAmount} VOTO${voteAmount > 1 ? 'S' : ''}`;
+
+  if (batch.type === 'gift') {
+    const giftLabel =
+      side === 'flavio'
+        ? '🤍🌹 ROSA BRANCA'
+        : '🌹 ROSA';
+
+    pop.querySelector('strong').textContent =
+      `${giftLabel} • ${voteWord}`;
+  } else {
+    pop.querySelector('strong').textContent =
+      `💬 COMENTOU ${code} • ${voteWord}`;
+  }
   pop.classList.add('show');
   liveTag.textContent = batch.type === 'gift' ? 'PRESENTE' : 'COMENTÁRIO';
 
@@ -447,7 +511,7 @@ $('unlockBtn').onclick = async () => {
   catch (e) { adminPin = ''; toast(e.message); }
 };
 $('pinInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('unlockBtn').click(); });
-$('voiceBtn').onclick = enableVoice;
+$('voiceBtn').onclick = toggleVoice;
 
 $('connectBtn').onclick = async () => {
   $('connectBtn').disabled = true;

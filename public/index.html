@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css?v=8fix">
+  <link rel="stylesheet" href="/style.css?v=12>
 </head>
 <body>
   <div class="bg-glow glow-left"></div>
@@ -67,6 +67,10 @@
     <section class="urna-stage">
       <article class="urna-box urna-blue" id="urnLeft">
         <div class="urna-title"><span>URNA 22</span><small id="leftLiveTag">AGUARDANDO</small></div>
+        <div class="vote-guide vote-guide-left">
+          <div>💬 <b>COMENTE 22</b><strong>+1 VOTO</strong></div>
+          <div>🤍🌹 <b>ROSA BRANCA</b><strong>+1 VOTO</strong></div>
+        </div>
         <div class="comment-hint comment-hint-blue">
           💬 COMENTE <strong>22</strong> <span>= +1 VOTO</span>
         </div>
@@ -92,6 +96,10 @@
 
       <article class="urna-box urna-red" id="urnRight">
         <div class="urna-title"><span>URNA 13</span><small id="rightLiveTag">AGUARDANDO</small></div>
+        <div class="vote-guide vote-guide-right">
+          <div>💬 <b>COMENTE 13</b><strong>+1 VOTO</strong></div>
+          <div>🌹 <b>ROSA</b><strong>+1 VOTO</strong></div>
+        </div>
         <div class="comment-hint comment-hint-red">
           💬 COMENTE <strong>13</strong> <span>= +1 VOTO</span>
         </div>
@@ -116,9 +124,32 @@
       </article>
     </section>
 
-    <section class="quick-vote glass">
-      <div class="vote-rule blue-rule"><span>💬 22</span><b>ou</b><span>🤍🌹 Rosa Branca</span><strong>→ Flávio</strong></div>
-      <div class="vote-rule red-rule"><span>💬 13</span><b>ou</b><span>🌹 Rosa</span><strong>→ Lula</strong></div>
+    <section class="quick-vote glass quick-vote-v2">
+      <div class="quick-title">⚡ CADA AÇÃO VALE <strong>+1 VOTO</strong></div>
+
+      <div class="vote-rule blue-rule">
+        <span class="rule-icon">💬</span>
+        <b>COMENTE 22</b>
+        <strong>+1 VOTO</strong>
+
+        <span class="rule-sep">OU</span>
+
+        <span class="rule-icon">🤍🌹</span>
+        <b>ROSA BRANCA</b>
+        <strong>+1 VOTO</strong>
+      </div>
+
+      <div class="vote-rule red-rule">
+        <span class="rule-icon">💬</span>
+        <b>COMENTE 13</b>
+        <strong>+1 VOTO</strong>
+
+        <span class="rule-sep">OU</span>
+
+        <span class="rule-icon">🌹</span>
+        <b>ROSA</b>
+        <strong>+1 VOTO</strong>
+      </div>
     </section>
 
     <section class="activity-strip glass" id="activityCard">
@@ -149,7 +180,7 @@
         <div class="panel-block">
           <label>@usuário que está fazendo a LIVE</label>
           <div class="row"><input id="usernameInput" placeholder="ex: meuusuario" autocapitalize="off"><button id="connectBtn" class="primary">CONECTAR</button></div>
-          <div class="row top-gap"><button id="disconnectBtn">DESCONECTAR</button><button id="voiceBtn">🔊 ATIVAR VOZ</button></div>
+          <div class="row top-gap"><button id="disconnectBtn">DESCONECTAR</button><button id="voiceBtn" class="voice-toggle">🔇 VOZ: DESLIGADA</button></div>
           <small id="voiceStatus">Voz ainda não ativada</small>
           <small id="connectionMessage">Desconectado</small>
         </div>
@@ -208,6 +239,6 @@
   <div class="toast" id="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/app.js?v=8fix"></script>
+  <script src="/app.js?v=12></script>
 </body>
 </html>
