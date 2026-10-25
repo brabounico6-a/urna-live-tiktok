@@ -185,6 +185,7 @@ function matchesAlias(name, aliases = []) {
 }
 
 function handleChat(data) {
+  console.log('[CHAT RECEBIDO]', userLabel(data), JSON.stringify(data.comment));
   const messageId = data.msgId || data.messageUuid || data.common?.msgId;
   if (rememberMessage(messageId)) return;
 
