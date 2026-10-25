@@ -5,6 +5,7 @@ let adminPin = sessionStorage.getItem('urnaAdminPin') || '';
 let toastTimer;
 let animationReady = false;
 let lastActivityKey = '';
+let lastWinnerKey = '';
 let voteAnimationRunning = false;
 const voteAnimationQueue = [];
 
@@ -86,6 +87,12 @@ async function api(url, body = {}){
 
 function render(state){
   currentState = state;
+  if(state.winner){
+    showWinner(state.winner);
+  }else{
+    hideWinner();
+  }
+
   const l = Number(state.votes.flavio || 0), r = Number(state.votes.lula || 0), total = l+r;
   const lp = total ? l/total*100 : 50;
   const rp = total ? r/total*100 : 50;
@@ -500,6 +507,80 @@ async function animateVote(side,item){
 
   await sleep(20);
 }
+
+
+function ensureWinnerUI(){
+  if($('winnerOverlay')) return;
+
+  const div=document.createElement('div');
+  div.id='winnerOverlay';
+  div.className='winner-overlay';
+
+  div.innerHTML=`
+    <div class="winner-box">
+      <div class="winner-trophy">🏆</div>
+      <img id="winnerPhoto" class="winner-photo" alt="">
+      <div class="winner-label">VENCEDOR DA RODADA</div>
+      <div id="winnerName" class="winner-name"></div>
+      <div id="winnerCode" class="winner-code"></div>
+      <div class="winner-score">10.000 VOTOS</div>
+      <div class="winner-next">Nova rodada começando...</div>
+    </div>
+  `;
+
+  document.body.appendChild(div);
+}
+
+function showWinner(winner){
+  if(!winner) return;
+
+  ensureWinnerUI();
+
+  const overlay=$('winnerOverlay');
+  const photo=$('winnerPhoto');
+
+  photo.src=
+    winner.side==='flavio'
+      ? '/flavio.jpg'
+      : '/lula.jpg';
+
+  $('winnerName').textContent=winner.name || '';
+  $('winnerCode').textContent=`NÚMERO ${winner.code || ''}`;
+
+  overlay.classList.add('show');
+
+  const key=[
+    winner.round,
+    winner.side,
+    winner.time
+  ].join('|');
+
+  if(key !== lastWinnerKey){
+    lastWinnerKey=key;
+
+    if('speechSynthesis' in window){
+      try{
+        const u=new SpeechSynthesisUtterance(
+          `${winner.name} venceu a rodada com dez mil votos`
+        );
+
+        u.lang='pt-BR';
+        u.rate=1.02;
+        u.pitch=1;
+        speechSynthesis.speak(u);
+      }catch{}
+    }
+
+    try{
+      playConfirmTone();
+    }catch{}
+  }
+}
+
+function hideWinner(){
+  $('winnerOverlay')?.classList.remove('show');
+}
+
 
 async function initial(){
   const res=await fetch('/api/state');

@@ -20,6 +20,7 @@ const PORT = Number(process.env.PORT || 3000);
 const ADMIN_PIN = String(process.env.ADMIN_PIN || '2213');
 const DEFAULT_USERNAME = String(process.env.TIKTOK_USERNAME || '').replace(/^@/, '').trim();
 const EULER_API_KEY = String(process.env.EULER_API_KEY || '').trim();
+const TARGET_VOTES = 10000;
 
 const defaultState = {
   votes: { flavio: 0, lula: 0 },
@@ -41,6 +42,7 @@ const defaultState = {
     giftVotesPerItem: 1,
     exactCommentOnly: true
   },
+  winner: null,
   lastActivity: null,
   recentActivity: []
 };
@@ -103,7 +105,9 @@ function publicState() {
     connection: state.connection,
     config: state.config,
     lastActivity: state.lastActivity,
-    recentActivity: state.recentActivity
+    recentActivity: state.recentActivity,
+    winner: state.winner || null,
+    targetVotes: TARGET_VOTES
   };
 }
 
@@ -147,10 +151,51 @@ function addActivity(activity) {
 }
 
 function addVotes(side, amount, activity) {
+  // Durante a comemoração do vencedor, não entra voto novo.
+  if (state.winner) return;
+
   const n = Math.max(0, Math.floor(Number(amount) || 0));
   if (!n) return;
+
   state.votes[side] += n;
+
+  // A rodada termina exatamente em 10.000.
+  if (state.votes[side] >= TARGET_VOTES) {
+    state.votes[side] = TARGET_VOTES;
+  }
+
   addActivity({ side, amount: n, ...activity });
+
+  if (state.votes[side] >= TARGET_VOTES) {
+    const isFlavio = side === 'flavio';
+
+    state.winner = {
+      side,
+      name: isFlavio ? state.config.leftName : state.config.rightName,
+      code: isFlavio ? state.config.leftCode : state.config.rightCode,
+      votes: TARGET_VOTES,
+      round: state.round,
+      time: new Date().toISOString()
+    };
+
+    saveState();
+    io.emit('state', publicState());
+
+    // Mostra o vencedor por 7 segundos e inicia nova rodada.
+    setTimeout(() => {
+      state.votes = { flavio: 0, lula: 0 };
+      state.participants = [];
+      state.round += 1;
+      state.winner = null;
+      state.lastActivity = null;
+      state.recentActivity = [];
+      saveState();
+      io.emit('state', publicState());
+    }, 7000);
+
+    return;
+  }
+
   saveState();
   io.emit('state', publicState());
 }
@@ -423,6 +468,7 @@ app.post('/api/reset', (req, res) => {
   state.participants = [];
   state.lastActivity = null;
   state.recentActivity = [];
+  state.winner = null;
   if (req.body.nextRound === true) state.round += 1;
   saveState();
   io.emit('state', publicState());
