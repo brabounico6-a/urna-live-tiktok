@@ -282,7 +282,7 @@ async function connectTikTok(username, isReconnect = false) {
   };
   io.emit('state', publicState());
 
-  const options = { enableExtendedGiftInfo: true, processInitialData: false };
+  const options = { enableExtendedGiftInfo: false, processInitialData: false };
   if (EULER_API_KEY) options.signApiKey = EULER_API_KEY;
   const live = new TikTokLiveConnection(clean, options);
   connection = live;
