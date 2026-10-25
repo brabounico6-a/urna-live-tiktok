@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css?v=6">
 </head>
 <body>
   <div class="bg-glow glow-left"></div>
@@ -31,7 +31,7 @@
     <section class="battle-grid">
       <article class="candidate-card blue-card" id="candidateLeft">
         <div class="candidate-shine"></div>
-        <img src="/flavio.jpg" class="candidate-photo" alt="">
+        <div class="candidate-emblem emblem-blue"><strong>22</strong><small>PARTICIPE</small></div>
         <div class="candidate-info">
           <div class="candidate-topline"><span id="leftName">Flávio Bolsonaro</span><b id="leftCode">22</b></div>
           <div class="vote-number" id="leftVotes">0</div>
@@ -43,7 +43,7 @@
 
       <article class="candidate-card red-card" id="candidateRight">
         <div class="candidate-shine"></div>
-        <img src="/lula.jpg" class="candidate-photo" alt="">
+        <div class="candidate-emblem emblem-red"><strong>13</strong><small>PARTICIPE</small></div>
         <div class="candidate-info">
           <div class="candidate-topline"><span id="rightName">Lula</span><b id="rightCode">13</b></div>
           <div class="vote-number" id="rightVotes">0</div>
@@ -208,6 +208,6 @@
   <div class="toast" id="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/app.js"></script>
+  <script src="/app.js?v=6"></script>
 </body>
 </html>
