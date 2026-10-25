@@ -505,10 +505,21 @@ async function initial() {
 }
 
 $('adminToggle').onclick = () => {
-  $('adminPanel').classList.remove('hidden');
-  $('adminPanel').style.display = 'block';
-  $('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
-}; $('adminPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const panel = $('adminPanel');
+
+  if (!panel) return;
+
+  panel.classList.remove('hidden');
+  panel.style.display = 'block';
+
+  setTimeout(() => {
+    panel.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }, 40);
+};
+
 $('closeAdmin').onclick = () => $('adminPanel').classList.add('hidden');
 $('unlockBtn').onclick = async () => {
   adminPin = $('pinInput').value.trim();
