@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css?v=controls-fix-1"bg-glow glow-left"></div>
+  <link rel="stylesheet" href="/style.css?v=admin-direct-30"bg-glow glow-left"></div>
   <div class="bg-glow glow-right"></div>
   <div class="noise"></div>
 
@@ -163,10 +163,10 @@
 
     <div class="disclaimer">ENQUETE RECREATIVA • NÃO É RESULTADO ELEITORAL OFICIAL</div>
 
-    <button class="admin-toggle" id="adminToggle">⚙ CONTROLES DA LIVE</button>
+    <button class="admin-toggle" id="adminToggle" onclick="openAdminPanelDirect(event)">⚙ CONTROLES DA LIVE</button>
 
     <section class="admin-panel hidden glass" id="adminPanel">
-      <div class="admin-head"><div><span class="eyebrow">PAINEL DO CRIADOR</span><h2>Controle total</h2></div><button id="closeAdmin">✕</button></div>
+      <div class="admin-head"><div><span class="eyebrow">PAINEL DO CRIADOR</span><h2>Controle total</h2></div><button id="closeAdmin" onclick="closeAdminPanelDirect(event)">✕</button></div>
 
       <div id="authBox" class="panel-block">
         <label>PIN administrativo</label>
@@ -275,6 +275,69 @@
     bindControls();
   }
 })();
+</script>
+
+
+<script>
+/* ADMIN-DIRECT-FIX-2026 */
+
+window.openAdminPanelDirect = function(e){
+  if(e){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  var panel = document.getElementById('adminPanel');
+
+  if(panel){
+    panel.classList.remove('hidden');
+    panel.style.display = 'block';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+    panel.style.pointerEvents = 'auto';
+
+    setTimeout(function(){
+      try{
+        panel.scrollIntoView({
+          behavior:'smooth',
+          block:'start'
+        });
+      }catch{}
+    },50);
+  }
+
+  return false;
+};
+
+window.closeAdminPanelDirect = function(e){
+  if(e){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  var panel = document.getElementById('adminPanel');
+
+  if(panel){
+    panel.classList.add('hidden');
+    panel.style.display = 'none';
+  }
+
+  return false;
+};
+
+/* suporte extra para WebView/Android */
+document.addEventListener('touchend', function(e){
+  var open = e.target.closest && e.target.closest('#adminToggle');
+  var close = e.target.closest && e.target.closest('#closeAdmin');
+
+  if(open){
+    window.openAdminPanelDirect(e);
+  }
+
+  if(close){
+    window.closeAdminPanelDirect(e);
+  }
+}, true);
 </script>
 
 </body>
