@@ -803,3 +803,34 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
   }
 }
 
+
+
+/* FIX CONTROLES DA LIVE */
+#adminToggle{
+  position:relative !important;
+  z-index:9998 !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+
+#adminPanel{
+  position:relative !important;
+  z-index:9999 !important;
+  pointer-events:auto !important;
+}
+
+#adminPanel.hidden{
+  display:none !important;
+}
+
+#adminPanel:not(.hidden){
+  display:block !important;
+}
+
+.quick-vote,
+.quick-vote-v2,
+.vote-guide{
+  position:relative !important;
+  z-index:1 !important;
+}
+

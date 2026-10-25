@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css?v=layout-fix-20"bg-glow glow-left"></div>
+  <link rel="stylesheet" href="/style.css?v=controls-fix-1"bg-glow glow-left"></div>
   <div class="bg-glow glow-right"></div>
   <div class="noise"></div>
 
@@ -237,5 +237,45 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js?v=12></script>
+
+<script>
+/* FIX-CONTROLES-LIVE */
+(function(){
+  function bindControls(){
+    const open = document.getElementById('adminToggle');
+    const panel = document.getElementById('adminPanel');
+    const close = document.getElementById('closeAdmin');
+
+    if(open && panel){
+      open.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        panel.classList.remove('hidden');
+
+        setTimeout(function(){
+          panel.scrollIntoView({
+            behavior:'smooth',
+            block:'start'
+          });
+        }, 50);
+      });
+    }
+
+    if(close && panel){
+      close.addEventListener('click', function(e){
+        e.preventDefault();
+        panel.classList.add('hidden');
+      });
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindControls);
+  }else{
+    bindControls();
+  }
+})();
+</script>
+
 </body>
 </html>
