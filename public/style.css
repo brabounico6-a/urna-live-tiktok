@@ -624,3 +624,79 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
   }
 }
 
+
+
+/* ===== FIX DEFINITIVO: AVISOS NA MESMA LINHA ===== */
+
+.quick-vote,
+.quick-vote-v2{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  gap:6px !important;
+  width:100% !important;
+}
+
+.quick-vote > .vote-rule,
+.quick-vote-v2 > .vote-rule{
+  flex:1 1 0 !important;
+  width:0 !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+
+/* avisos dentro das urnas */
+.vote-guide{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:stretch !important;
+  gap:4px !important;
+  width:100% !important;
+}
+
+.vote-guide > div{
+  flex:1 1 0 !important;
+  width:0 !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:5px 2px !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+
+.vote-guide b,
+.vote-guide strong{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+@media(max-width:640px){
+  .quick-vote,
+  .quick-vote-v2{
+    grid-template-columns:none !important;
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+  }
+
+  .vote-guide{
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+  }
+
+  .vote-guide > div{
+    flex:1 1 50% !important;
+    width:50% !important;
+  }
+}
+
