@@ -1,0 +1,22 @@
+TUTORIAL RÁPIDO — COLOCAR ONLINE PELO CELULAR
+
+1) Extraia o ZIP.
+2) Crie um repositório no GitHub.
+3) Envie todos os arquivos extraídos para a raiz do repositório.
+4) No Railway, crie Project > Deploy from GitHub Repo.
+5) Selecione o repositório.
+6) Em Variables crie ADMIN_PIN com um PIN só seu.
+7) Opcional: TIKTOK_USERNAME com seu @ sem o @.
+8) Gere um Domain no Railway.
+9) Abra o link do site.
+10) Inicie a LIVE no TikTok antes de conectar.
+11) No painel, coloque seu @ e toque em CONECTAR LIVE.
+12) Toque na tela ao menos uma vez para liberar o som no celular.
+
+REGRAS PRONTAS:
+22 = +1 Flávio
+13 = +1 Lula
+Rosa / Rose = +1 Lula
+Rosa Branca / White Rose = +1 Flávio
+
+O painel é uma enquete recreativa e não representa resultado eleitoral oficial.
