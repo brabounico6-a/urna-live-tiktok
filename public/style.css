@@ -19,3 +19,67 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
 @keyframes livePulse{50%{transform:scale(.75);opacity:.7}}@keyframes shine{from{left:-50%}to{left:130%}}@keyframes urnaFlash{40%{filter:brightness(1.28)}100%{filter:none}}@keyframes winnerIn{from{transform:scale(.76) translateY(25px);opacity:0}to{transform:none;opacity:1}}@keyframes trophy{to{transform:translateY(-7px) rotate(3deg)}}@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:640px){.app-shell{padding:8px 7px 55px}.hero{padding:11px;border-radius:17px;top:5px}.hero p{display:none}.hero h1{font-size:17px}.round-chip{display:none}.battle-grid{gap:7px}.candidate-card{min-height:178px;border-radius:18px;grid-template-columns:42% 58%}.candidate-info{padding:11px 8px}.candidate-topline span{font-size:8px}.candidate-topline b{width:29px;height:29px;border-radius:8px;font-size:13px}.vote-number{font-size:31px;margin-top:10px}.urna-stage{gap:7px}.urna-box{padding:7px;border-radius:16px;box-shadow:0 8px 0 #4b5755,0 15px 28px rgba(0,0,0,.4)}.urna-body{grid-template-columns:55% 45%;gap:4px}.urna-screen{min-height:105px;border-width:4px}.screen-idle strong{font-size:27px}.keypad{gap:3px;padding:5px}.keypad button{font-size:7px;min-height:18px}.keypad .confirm-key{font-size:5px;min-height:17px}.hand{width:68px}.quick-vote{gap:5px;padding:6px}.vote-rule{padding:7px;font-size:7px}.stats-grid{gap:5px}.stat{padding:9px 4px}.stat strong{font-size:15px}.two-col{grid-template-columns:1fr}.row{flex-direction:column}.row button{width:100%}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* AVISO DE VOTO POR COMENTÁRIO */
+.comment-hint{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  margin:-1px 0 7px;
+  padding:5px 7px;
+  border-radius:8px;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.03em;
+  color:#fff;
+  animation:commentHintPulse 1.4s ease-in-out infinite alternate;
+}
+
+.comment-hint strong{
+  font-size:11px;
+}
+
+.comment-hint span{
+  font-size:6px;
+  opacity:.9;
+}
+
+.comment-hint-blue{
+  background:linear-gradient(90deg,rgba(0,104,255,.72),rgba(38,174,255,.35));
+  border:1px solid rgba(92,194,255,.55);
+  box-shadow:0 0 15px rgba(25,151,255,.22);
+}
+
+.comment-hint-red{
+  background:linear-gradient(90deg,rgba(255,27,69,.72),rgba(255,87,111,.35));
+  border:1px solid rgba(255,102,127,.55);
+  box-shadow:0 0 15px rgba(255,39,75,.22);
+}
+
+@keyframes commentHintPulse{
+  from{
+    filter:brightness(.92);
+    transform:scale(.985);
+  }
+  to{
+    filter:brightness(1.15);
+    transform:scale(1);
+  }
+}
+
+@media(max-width:480px){
+  .comment-hint{
+    font-size:6px;
+    padding:4px 5px;
+  }
+
+  .comment-hint strong{
+    font-size:9px;
+  }
+
+  .comment-hint span{
+    font-size:5px;
+  }
+}
