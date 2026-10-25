@@ -871,3 +871,62 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
   pointer-events:none !important;
 }
 
+
+
+/* ===== CONTROLES DA LIVE - ABERTURA NATIVA SEM JAVASCRIPT ===== */
+
+.admin-open-check{
+  position:absolute !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+#adminToggle{
+  display:flex !important;
+  width:100% !important;
+  min-height:48px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  touch-action:manipulation !important;
+  position:relative !important;
+  z-index:100 !important;
+}
+
+#adminPanel{
+  display:none !important;
+  position:relative !important;
+  z-index:101 !important;
+}
+
+/* quando toca em CONTROLES DA LIVE */
+#adminOpen:checked ~ #adminPanel,
+#adminOpen:checked ~ #adminPanel.hidden{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+
+.admin-close{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:36px !important;
+  height:36px !important;
+  border-radius:9px !important;
+  border:1px solid #30465a !important;
+  background:#0e1b28 !important;
+  color:#fff !important;
+  cursor:pointer !important;
+  font-weight:900 !important;
+}
+
+/* os controles internos continuam aparecendo após colocar o PIN */
+#adminContent:not(.hidden){
+  display:block !important;
+}
+
