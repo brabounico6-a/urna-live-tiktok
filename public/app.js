@@ -44,10 +44,26 @@ function getAudioCtx() {
   return audioCtx;
 }
 
+const confirmTonePool = Array.from({ length: 3 }, () => {
+  const a = new Audio('/audio/confirma-urna.mp3');
+  a.preload = 'auto';
+  a.volume = 1;
+  return a;
+});
+let confirmToneIndex = 0;
+
 async function unlockAudio() {
   try {
     const ctx = getAudioCtx();
     if (ctx && ctx.state === 'suspended') await ctx.resume();
+
+    // Desbloqueia também o MP3 de confirmação no Android/WebView.
+    const a = confirmTonePool[0];
+    a.volume = 0.001;
+    await a.play();
+    a.pause();
+    a.currentTime = 0;
+    a.volume = 1;
   } catch {}
 }
 
@@ -70,8 +86,24 @@ function beep(freq = 900, duration = .045, volume = .035) {
 }
 
 function playConfirmTone() {
-  const seq = [1760, 2093, 2349, 2093, 2637];
-  seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
+  try {
+    const a = confirmTonePool[confirmToneIndex % confirmTonePool.length];
+    confirmToneIndex++;
+    a.pause();
+    a.currentTime = 0;
+    a.volume = 1;
+    const p = a.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {
+        // Fallback curto se o WebView bloquear o MP3.
+        const seq = [1760, 2093, 2349, 2093, 2637];
+        seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
+      });
+    }
+  } catch {
+    const seq = [1760, 2093, 2349, 2093, 2637];
+    seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
+  }
 }
 
 window.addEventListener('pointerdown', unlockAudio, { passive: true });
@@ -336,7 +368,6 @@ function showWinner(winner) {
   if (key !== winnerKey) {
     winnerKey = key;
     playLocalVoice(winner.side);
-    playConfirmTone();
   }
 }
 
