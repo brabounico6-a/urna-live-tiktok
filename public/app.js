@@ -490,6 +490,7 @@ function hideWinner() {
 function unlockUI() {
   $('authBox').classList.add('hidden');
   $('adminContent').classList.remove('hidden');
+  $('adminContent').style.display = 'block';
 }
 
 async function initial() {
@@ -503,7 +504,11 @@ async function initial() {
   }
 }
 
-$('adminToggle').onclick = () => { $('adminPanel').classList.remove('hidden'); $('adminPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+$('adminToggle').onclick = () => {
+  $('adminPanel').classList.remove('hidden');
+  $('adminPanel').style.display = 'block';
+  $('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}; $('adminPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 $('closeAdmin').onclick = () => $('adminPanel').classList.add('hidden');
 $('unlockBtn').onclick = async () => {
   adminPin = $('pinInput').value.trim();
