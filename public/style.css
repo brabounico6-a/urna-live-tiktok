@@ -83,3 +83,31 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
     font-size:5px;
   }
 }
+
+
+/* VISUAL MAIS NEUTRO / SEM FOTOS GRANDES */
+.candidate-avatar{
+  display:none !important;
+}
+
+.candidate{
+  padding-top:14px !important;
+}
+
+.candidate-head{
+  justify-content:space-between !important;
+  align-items:center !important;
+}
+
+.unofficial-banner{
+  background:#07131f !important;
+  border-bottom:1px solid #27455e !important;
+  color:#d7e9f7 !important;
+  font-size:10px !important;
+}
+
+/* Mantém fotos apenas dentro da urna e na tela de vencedor */
+.screen-preview img,
+.winner-photo{
+  display:block !important;
+}
