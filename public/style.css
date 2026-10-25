@@ -571,3 +571,56 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
   }
 }
 
+
+/* DEIXAR COMENTÁRIO E PRESENTE NA MESMA LINHA */
+.vote-guide{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:6px !important;
+  align-items:stretch !important;
+}
+
+.vote-guide > div{
+  width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  min-height:46px !important;
+  padding:6px 3px !important;
+  box-sizing:border-box !important;
+}
+
+.vote-guide b{
+  white-space:nowrap !important;
+  font-size:7px !important;
+}
+
+.vote-guide strong{
+  white-space:nowrap !important;
+  font-size:9px !important;
+}
+
+/* impede um dos blocos de descer no celular */
+@media(max-width:480px){
+  .vote-guide{
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  .vote-guide > div{
+    min-height:42px !important;
+  }
+
+  .vote-guide b{
+    font-size:6px !important;
+  }
+
+  .vote-guide strong{
+    font-size:8px !important;
+  }
+}
+
