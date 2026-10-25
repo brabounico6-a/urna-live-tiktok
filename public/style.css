@@ -700,3 +700,44 @@ button,input,textarea{font:inherit}.hidden{display:none!important}
   }
 }
 
+
+/* TESTE DEFINITIVO DO PAINEL - SEM BOTÃO */
+
+#adminToggle{
+  display:none !important;
+}
+
+#adminPanel,
+#adminPanel.hidden{
+  display:block !important;
+  position:relative !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+
+  width:100% !important;
+  box-sizing:border-box !important;
+
+  margin-top:120px !important;
+  margin-bottom:80px !important;
+
+  z-index:10 !important;
+}
+
+#authBox{
+  display:block !important;
+}
+
+#adminPanel button,
+#adminPanel input,
+#adminPanel textarea,
+#adminPanel label{
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+
+/* depois que colocar o PIN, aparecem as funções */
+#adminContent:not(.hidden){
+  display:block !important;
+}
+
