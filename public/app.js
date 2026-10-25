@@ -598,3 +598,113 @@ socket.on('connect', () => console.log('socket conectado'));
 socket.on('connect_error', () => {});
 
 initial().catch(() => toast('Falha ao carregar o painel'));
+
+
+/* ===== CORREÇÃO AO VOLTAR DO TIKTOK / SEGUNDO PLANO ===== */
+let appHiddenAt = 0;
+let resumeReloading = false;
+
+function clearStuckVoteUi(){
+  try{
+    if(typeof anim !== 'undefined'){
+      if(anim.flavio){
+        anim.flavio.pending = null;
+        anim.flavio.running = false;
+      }
+
+      if(anim.lula){
+        anim.lula.pending = null;
+        anim.lula.running = false;
+      }
+    }
+
+    document.querySelectorAll(
+      '.vote-pop.show,.vote-hand.visible,.vote-hand.tap,' +
+      '.urn.flash,.screen.success,.screen.active,' +
+      '.key.pressed'
+    ).forEach(el => {
+      el.classList.remove(
+        'show',
+        'visible',
+        'tap',
+        'flash',
+        'success',
+        'active',
+        'pressed'
+      );
+    });
+
+    const leftTag = document.getElementById('leftLiveTag');
+    const rightTag = document.getElementById('rightLiveTag');
+
+    if(leftTag) leftTag.textContent = 'AGUARDANDO';
+    if(rightTag) rightTag.textContent = 'AGUARDANDO';
+
+    if(typeof activeVoiceAudio !== 'undefined' && activeVoiceAudio){
+      try{
+        activeVoiceAudio.pause();
+        activeVoiceAudio.currentTime = 0;
+      }catch{}
+    }
+  }catch{}
+}
+
+async function reloadCurrentState(){
+  clearStuckVoteUi();
+
+  try{
+    if(typeof socket !== 'undefined' && !socket.connected){
+      socket.connect();
+    }
+  }catch{}
+
+  try{
+    const res = await fetch(
+      '/api/state?resume=' + Date.now(),
+      { cache:'no-store' }
+    );
+
+    const state = await res.json();
+
+    if(typeof renderState === 'function'){
+      renderState(state);
+    }
+  }catch{}
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    appHiddenAt = Date.now();
+    return;
+  }
+
+  const awayFor = Date.now() - appHiddenAt;
+
+  if(appHiddenAt && awayFor > 500 && !resumeReloading){
+    resumeReloading = true;
+
+    clearStuckVoteUi();
+
+    /*
+      Recarregar cancela de verdade qualquer animação antiga
+      que ficou congelada pelo WebView.
+      O placar real é recuperado do servidor ao abrir novamente.
+    */
+    setTimeout(() => {
+      location.reload();
+    }, 80);
+  }
+});
+
+window.addEventListener('pageshow', event => {
+  if(event.persisted){
+    clearStuckVoteUi();
+    reloadCurrentState();
+  }
+});
+
+window.addEventListener('focus', () => {
+  if(!document.hidden){
+    clearStuckVoteUi();
+  }
+});
