@@ -12,7 +12,10 @@ let pendingVoice = null;
 let lastVoiceAt = 0;
 let winnerKey = '';
 let audioCtx = null;
-let lastResetSerial = -1;
+let lastBatchAt = 0;
+const confirmAudio = new Audio('/audio/confirma-urna.mp3');
+confirmAudio.preload = 'auto';
+confirmAudio.volume = 1;
 
 const anim = {
   flavio: { running: false, pending: null },
@@ -45,26 +48,17 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-const confirmTonePool = Array.from({ length: 3 }, () => {
-  const a = new Audio('/audio/confirma-urna.mp3');
-  a.preload = 'auto';
-  a.volume = 1;
-  return a;
-});
-let confirmToneIndex = 0;
-
 async function unlockAudio() {
   try {
     const ctx = getAudioCtx();
     if (ctx && ctx.state === 'suspended') await ctx.resume();
-
-    // Desbloqueia também o MP3 de confirmação no Android/WebView.
-    const a = confirmTonePool[0];
-    a.volume = 0.001;
-    await a.play();
-    a.pause();
-    a.currentTime = 0;
-    a.volume = 1;
+  } catch {}
+  try {
+    confirmAudio.volume = 0.001;
+    await confirmAudio.play();
+    confirmAudio.pause();
+    confirmAudio.currentTime = 0;
+    confirmAudio.volume = 1;
   } catch {}
 }
 
@@ -86,24 +80,19 @@ function beep(freq = 900, duration = .045, volume = .035) {
   } catch {}
 }
 
+function playSynthConfirm() {
+  const seq = [1760, 2093, 2349, 2093, 2637];
+  seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
+}
+
 function playConfirmTone() {
   try {
-    const a = confirmTonePool[confirmToneIndex % confirmTonePool.length];
-    confirmToneIndex++;
-    a.pause();
-    a.currentTime = 0;
-    a.volume = 1;
-    const p = a.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(() => {
-        // Fallback curto se o WebView bloquear o MP3.
-        const seq = [1760, 2093, 2349, 2093, 2637];
-        seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
-      });
-    }
+    confirmAudio.pause();
+    confirmAudio.currentTime = 0;
+    const p = confirmAudio.play();
+    if (p && typeof p.catch === 'function') p.catch(playSynthConfirm);
   } catch {
-    const seq = [1760, 2093, 2349, 2093, 2637];
-    seq.forEach((f, i) => setTimeout(() => beep(f, i === 4 ? .09 : .05, .075), i * 58));
+    playSynthConfirm();
   }
 }
 
@@ -122,74 +111,44 @@ function voiceSupported() {
 }
 
 async function enableVoice() {
+  await unlockAudio();
+  voiceEnabled = true;
+  localStorage.setItem('urnaVoiceEnabled', '1');
   try {
-    await unlockAudio();
-
-    const audio = localVoices.flavio;
-    audio.volume = 0.001;
-
-    await audio.play();
-
-    audio.pause();
-    audio.currentTime = 0;
-    audio.volume = 1;
-
-    voiceEnabled = true;
-    localStorage.setItem('urnaVoiceEnabled', '1');
-
-    updateVoiceUi();
-    toast('Voz ativada');
-  } catch {
-    voiceEnabled = false;
-    localStorage.removeItem('urnaVoiceEnabled');
-
-    updateVoiceUi();
-    toast('Não foi possível liberar a voz. Toque novamente.');
-  }
+    const a = localVoices.flavio;
+    a.volume = 0.001;
+    await a.play();
+    a.pause();
+    a.currentTime = 0;
+    a.volume = 1;
+  } catch {}
+  updateVoiceUi();
+  toast('Voz ativada');
 }
 
 function disableVoice() {
   voiceEnabled = false;
   localStorage.removeItem('urnaVoiceEnabled');
-
-  if (activeVoiceAudio) {
-    try {
+  try {
+    if (activeVoiceAudio) {
       activeVoiceAudio.pause();
       activeVoiceAudio.currentTime = 0;
-    } catch {}
-  }
-
+    }
+  } catch {}
   activeVoiceAudio = null;
-
   updateVoiceUi();
   toast('Voz desativada');
 }
 
 function toggleVoice() {
-  if (voiceEnabled) {
-    disableVoice();
-  } else {
-    enableVoice();
-  }
+  if (voiceEnabled) disableVoice();
+  else enableVoice();
 }
 
 function updateVoiceUi() {
   if (!$('voiceStatus')) return;
-
-  $('voiceStatus').textContent = voiceEnabled
-    ? '✅ Voz ligada • anuncia o voto'
-    : '🔇 Voz desligada • toque para ativar';
-
-  if ($('voiceBtn')) {
-    $('voiceBtn').textContent = voiceEnabled
-      ? '🔊 VOZ: LIGADA'
-      : '🔇 VOZ: DESLIGADA';
-
-    $('voiceBtn').classList.toggle(
-      'voice-on',
-      voiceEnabled
-    );
-  }
+  $('voiceStatus').textContent = voiceEnabled ? 'Voz ligada • anuncia o lado do voto' : 'Voz desligada';
+  if ($('voiceBtn')) $('voiceBtn').textContent = voiceEnabled ? '🔊 VOZ LIGADA' : '🔇 VOZ DESLIGADA';
 }
 
 function playLocalVoice(side) {
@@ -221,47 +180,7 @@ function sideMeta(side, state = currentState) {
   return { key: 'lula', ui: 'Right', code: c.rightCode || '13', name: c.rightName || 'Lula', photo: '/lula.jpg' };
 }
 
-function hardResetVisuals() {
-  for (const side of ['flavio', 'lula']) {
-    const slot = anim[side];
-
-    if (slot) {
-      slot.pending = null;
-      slot.running = false;
-    }
-
-    const meta = sideMeta(side);
-    const urna = $(`urn${meta.ui}`);
-    const screen = $(`screen${meta.ui}`);
-    const hand = $(`hand${meta.ui}`);
-    const pop = $(`pop${meta.ui}`);
-
-    hand?.classList.remove('visible', 'tap');
-    pop?.classList.remove('show');
-    urna?.classList.remove('flash');
-    screen?.classList.remove('success', 'active');
-
-    const liveTag = $(
-      side === 'flavio'
-        ? 'leftLiveTag'
-        : 'rightLiveTag'
-    );
-
-    if (liveTag) liveTag.textContent = 'AGUARDANDO';
-  }
-}
-
 function renderState(state) {
-  const incomingResetSerial = Number(state.resetSerial ?? 0);
-
-  if (
-    lastResetSerial !== -1 &&
-    incomingResetSerial !== lastResetSerial
-  ) {
-    hardResetVisuals();
-  }
-
-  lastResetSerial = incomingResetSerial;
   currentState = state;
   const l = Number(state.votes?.flavio || 0);
   const r = Number(state.votes?.lula || 0);
@@ -338,14 +257,8 @@ function escapeHtml(s) {
 }
 
 function applyBatch(batch) {
+  lastBatchAt = Date.now();
   if (!currentState) return;
-
-  if (
-    Number(batch.resetSerial ?? -1) !==
-    Number(currentState.resetSerial ?? 0)
-  ) {
-    return;
-  }
   currentState.votes = currentState.votes || { flavio: 0, lula: 0 };
   currentState.votes[batch.side] = batch.totalVotes;
   if (Number.isFinite(batch.participantCount)) currentState.participants = batch.participantCount;
@@ -400,21 +313,10 @@ async function animateVote(side, batch) {
   if (!code) return;
 
   pop.querySelector('span').textContent = `@${batch.user || 'usuario'}`;
-  const voteAmount = Number(batch.amount || 1);
-  const voteWord = `+${voteAmount} VOTO${voteAmount > 1 ? 'S' : ''}`;
-
-  if (batch.type === 'gift') {
-    const giftLabel =
-      side === 'flavio'
-        ? '🤍🌹 ROSA BRANCA'
-        : '🌹 ROSA';
-
-    pop.querySelector('strong').textContent =
-      `${giftLabel} • ${voteWord}`;
-  } else {
-    pop.querySelector('strong').textContent =
-      `💬 COMENTOU ${code} • ${voteWord}`;
-  }
+  const amountText = `+${batch.amount || 1} VOTO${Number(batch.amount || 1) > 1 ? 'S' : ''}`;
+  pop.querySelector('strong').textContent = batch.type === 'gift'
+    ? `${side === 'flavio' ? '🤍🌹 ROSA BRANCA' : '🌹 ROSA'} • ${amountText}`
+    : `💬 ${meta.code} • ${amountText}`;
   pop.classList.add('show');
   liveTag.textContent = batch.type === 'gift' ? 'PRESENTE' : 'COMENTÁRIO';
 
@@ -480,12 +382,34 @@ function showWinner(winner) {
   if (key !== winnerKey) {
     winnerKey = key;
     playLocalVoice(winner.side);
+    playConfirmTone();
   }
 }
 
 function hideWinner() {
   $('winnerOverlay').classList.remove('show');
 }
+
+function clearTransientUi() {
+  anim.flavio.pending = null; anim.flavio.running = false;
+  anim.lula.pending = null; anim.lula.running = false;
+  document.querySelectorAll('.hand.visible,.hand.tap,.vote-pop.show,.urna-box.flash,.urna-screen.active,.urna-screen.success,.keypad button.pressed')
+    .forEach(el => el.classList.remove('visible','tap','show','flash','active','success','pressed'));
+  if ($('leftLiveTag')) $('leftLiveTag').textContent = 'AGUARDANDO';
+  if ($('rightLiveTag')) $('rightLiveTag').textContent = 'AGUARDANDO';
+}
+
+async function refreshAfterResume() {
+  clearTransientUi();
+  try {
+    const res = await fetch('/api/state?resume=' + Date.now(), { cache: 'no-store' });
+    renderState(await res.json());
+  } catch {}
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshAfterResume();
+});
 
 function unlockUI() {
   $('authBox').classList.add('hidden');
@@ -524,13 +448,41 @@ $('disconnectBtn').onclick = async () => { try { await api('/api/disconnect'); t
 for (const btn of document.querySelectorAll('[data-test]')) {
   btn.onclick = async () => {
     const map = {
-      'left-comment': { type: 'comment', value: currentState.config.leftCode },
-      'right-comment': { type: 'comment', value: currentState.config.rightCode },
-      'left-gift': { type: 'gift', value: currentState.config.leftGiftAliases[0] || 'White Rose' },
-      'right-gift': { type: 'gift', value: currentState.config.rightGiftAliases[0] || 'Rose' }
+      'left-comment': { type: 'comment', value: currentState.config.leftCode, side: 'flavio' },
+      'right-comment': { type: 'comment', value: currentState.config.rightCode, side: 'lula' },
+      'left-gift': { type: 'gift', value: currentState.config.leftGiftAliases[0] || 'White Rose', side: 'flavio' },
+      'right-gift': { type: 'gift', value: currentState.config.rightGiftAliases[0] || 'Rose', side: 'lula' }
     };
-    try { await api('/api/simulate', map[btn.dataset.test]); }
-    catch (e) { toast(e.message); }
+    const test = map[btn.dataset.test];
+    if (!test) return;
+    const started = Date.now();
+    btn.disabled = true;
+    try {
+      await unlockAudio();
+      await api('/api/simulate', { type: test.type, value: test.value });
+      await sleep(260);
+      if (lastBatchAt < started) {
+        const res = await fetch('/api/state?test=' + Date.now(), { cache: 'no-store' });
+        const fresh = await res.json();
+        const before = Number(currentState?.votes?.[test.side] || 0);
+        const after = Number(fresh?.votes?.[test.side] || 0);
+        renderState(fresh);
+        const delta = Math.max(1, after - before);
+        queueAnimation(test.side, {
+          side: test.side,
+          amount: delta,
+          totalVotes: after,
+          user: 'teste',
+          detail: test.value,
+          type: test.type
+        });
+      }
+      toast('Teste enviado');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      btn.disabled = false;
+    }
   };
 }
 
@@ -552,34 +504,17 @@ $('minusLeft').onclick = () => manual('flavio', -1);
 $('minusRight').onclick = () => manual('lula', -1);
 $('resetBtn').onclick = async () => {
   if (!confirm('Zerar os votos desta rodada?')) return;
-
   try {
     const d = await api('/api/reset', { nextRound: false });
-
-    hardResetVisuals();
-
     if (d.state) renderState(d.state);
-
+    else {
+      const r = await fetch('/api/state?reset=' + Date.now(), { cache: 'no-store' });
+      renderState(await r.json());
+    }
     toast('Votos zerados');
-  } catch (e) {
-    toast(e.message);
-  }
+  } catch (e) { toast(e.message); }
 };
-$('nextRoundBtn').onclick = async () => {
-  if (!confirm('Iniciar nova rodada?')) return;
-
-  try {
-    const d = await api('/api/reset', { nextRound: true });
-
-    hardResetVisuals();
-
-    if (d.state) renderState(d.state);
-
-    toast('Nova rodada iniciada');
-  } catch (e) {
-    toast(e.message);
-  }
-};
+$('nextRoundBtn').onclick = async () => { if (!confirm('Iniciar nova rodada?')) return; try { await api('/api/reset', { nextRound: true }); toast('Nova rodada iniciada'); } catch (e) { toast(e.message); } };
 $('saveConfigBtn').onclick = async () => {
   const payload = {
     leftName: $('cfgLeftName').value.trim(), rightName: $('cfgRightName').value.trim(),
@@ -598,113 +533,3 @@ socket.on('connect', () => console.log('socket conectado'));
 socket.on('connect_error', () => {});
 
 initial().catch(() => toast('Falha ao carregar o painel'));
-
-
-/* ===== CORREÇÃO AO VOLTAR DO TIKTOK / SEGUNDO PLANO ===== */
-let appHiddenAt = 0;
-let resumeReloading = false;
-
-function clearStuckVoteUi(){
-  try{
-    if(typeof anim !== 'undefined'){
-      if(anim.flavio){
-        anim.flavio.pending = null;
-        anim.flavio.running = false;
-      }
-
-      if(anim.lula){
-        anim.lula.pending = null;
-        anim.lula.running = false;
-      }
-    }
-
-    document.querySelectorAll(
-      '.vote-pop.show,.vote-hand.visible,.vote-hand.tap,' +
-      '.urn.flash,.screen.success,.screen.active,' +
-      '.key.pressed'
-    ).forEach(el => {
-      el.classList.remove(
-        'show',
-        'visible',
-        'tap',
-        'flash',
-        'success',
-        'active',
-        'pressed'
-      );
-    });
-
-    const leftTag = document.getElementById('leftLiveTag');
-    const rightTag = document.getElementById('rightLiveTag');
-
-    if(leftTag) leftTag.textContent = 'AGUARDANDO';
-    if(rightTag) rightTag.textContent = 'AGUARDANDO';
-
-    if(typeof activeVoiceAudio !== 'undefined' && activeVoiceAudio){
-      try{
-        activeVoiceAudio.pause();
-        activeVoiceAudio.currentTime = 0;
-      }catch{}
-    }
-  }catch{}
-}
-
-async function reloadCurrentState(){
-  clearStuckVoteUi();
-
-  try{
-    if(typeof socket !== 'undefined' && !socket.connected){
-      socket.connect();
-    }
-  }catch{}
-
-  try{
-    const res = await fetch(
-      '/api/state?resume=' + Date.now(),
-      { cache:'no-store' }
-    );
-
-    const state = await res.json();
-
-    if(typeof renderState === 'function'){
-      renderState(state);
-    }
-  }catch{}
-}
-
-document.addEventListener('visibilitychange', () => {
-  if(document.hidden){
-    appHiddenAt = Date.now();
-    return;
-  }
-
-  const awayFor = Date.now() - appHiddenAt;
-
-  if(appHiddenAt && awayFor > 500 && !resumeReloading){
-    resumeReloading = true;
-
-    clearStuckVoteUi();
-
-    /*
-      Recarregar cancela de verdade qualquer animação antiga
-      que ficou congelada pelo WebView.
-      O placar real é recuperado do servidor ao abrir novamente.
-    */
-    setTimeout(() => {
-      location.reload();
-    }, 80);
-  }
-});
-
-window.addEventListener('pageshow', event => {
-  if(event.persisted){
-    clearStuckVoteUi();
-    reloadCurrentState();
-  }
-});
-
-window.addEventListener('focus', () => {
-  if(!document.hidden){
-    clearStuckVoteUi();
-  }
-});

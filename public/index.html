@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05070d">
   <title>Urna Live Pro</title>
-  <link rel="stylesheet" href="/style.css?v=resume-fix-1"bg-glow glow-left"></div>
+  <link rel="stylesheet" href="/style.css?v=clean-final-1">
+</head>
+<body>
+  <div class="bg-glow glow-left"></div>
   <div class="bg-glow glow-right"></div>
   <div class="noise"></div>
 
@@ -28,7 +31,7 @@
     <section class="battle-grid">
       <article class="candidate-card blue-card" id="candidateLeft">
         <div class="candidate-shine"></div>
-        <div class="candidate-emblem emblem-blue"><strong>22</strong><small>PARTICIPE</small></div>
+        <div class="candidate-mark blue-mark"><strong>22</strong><small>PARTICIPE</small></div>
         <div class="candidate-info">
           <div class="candidate-topline"><span id="leftName">Flávio Bolsonaro</span><b id="leftCode">22</b></div>
           <div class="vote-number" id="leftVotes">0</div>
@@ -40,7 +43,7 @@
 
       <article class="candidate-card red-card" id="candidateRight">
         <div class="candidate-shine"></div>
-        <div class="candidate-emblem emblem-red"><strong>13</strong><small>PARTICIPE</small></div>
+        <div class="candidate-mark red-mark"><strong>13</strong><small>PARTICIPE</small></div>
         <div class="candidate-info">
           <div class="candidate-topline"><span id="rightName">Lula</span><b id="rightCode">13</b></div>
           <div class="vote-number" id="rightVotes">0</div>
@@ -64,13 +67,6 @@
     <section class="urna-stage">
       <article class="urna-box urna-blue" id="urnLeft">
         <div class="urna-title"><span>URNA 22</span><small id="leftLiveTag">AGUARDANDO</small></div>
-        <div class="vote-guide vote-guide-left">
-          <div>💬 <b>COMENTE 22</b><strong>+1 VOTO</strong></div>
-          <div>🤍🌹 <b>ROSA BRANCA</b><strong>+1 VOTO</strong></div>
-        </div>
-        <div class="comment-hint comment-hint-blue">
-          💬 COMENTE <strong>22</strong> <span>= +1 VOTO</span>
-        </div>
         <div class="urna-body">
           <div class="urna-screen" id="screenLeft">
             <div class="screen-idle"><strong>22</strong><small>AGUARDANDO VOTO</small></div>
@@ -93,13 +89,6 @@
 
       <article class="urna-box urna-red" id="urnRight">
         <div class="urna-title"><span>URNA 13</span><small id="rightLiveTag">AGUARDANDO</small></div>
-        <div class="vote-guide vote-guide-right">
-          <div>💬 <b>COMENTE 13</b><strong>+1 VOTO</strong></div>
-          <div>🌹 <b>ROSA</b><strong>+1 VOTO</strong></div>
-        </div>
-        <div class="comment-hint comment-hint-red">
-          💬 COMENTE <strong>13</strong> <span>= +1 VOTO</span>
-        </div>
         <div class="urna-body">
           <div class="urna-screen" id="screenRight">
             <div class="screen-idle"><strong>13</strong><small>AGUARDANDO VOTO</small></div>
@@ -121,32 +110,11 @@
       </article>
     </section>
 
-    <section class="quick-vote glass quick-vote-v2">
-      <div class="quick-title">⚡ CADA AÇÃO VALE <strong>+1 VOTO</strong></div>
-
-      <div class="vote-rule blue-rule">
-        <span class="rule-icon">💬</span>
-        <b>COMENTE 22</b>
-        <strong>+1 VOTO</strong>
-
-        <span class="rule-sep">OU</span>
-
-        <span class="rule-icon">🤍🌹</span>
-        <b>ROSA BRANCA</b>
-        <strong>+1 VOTO</strong>
-      </div>
-
-      <div class="vote-rule red-rule">
-        <span class="rule-icon">💬</span>
-        <b>COMENTE 13</b>
-        <strong>+1 VOTO</strong>
-
-        <span class="rule-sep">OU</span>
-
-        <span class="rule-icon">🌹</span>
-        <b>ROSA</b>
-        <strong>+1 VOTO</strong>
-      </div>
+    <section class="quick-vote clean-vote-guide">
+      <div class="guide-card guide-blue"><span>💬</span><b>COMENTE 22</b><strong>+1 VOTO</strong></div>
+      <div class="guide-card guide-blue"><span>🤍🌹</span><b>ROSA BRANCA</b><strong>+1 VOTO</strong></div>
+      <div class="guide-card guide-red"><span>💬</span><b>COMENTE 13</b><strong>+1 VOTO</strong></div>
+      <div class="guide-card guide-red"><span>🌹</span><b>ROSA</b><strong>+1 VOTO</strong></div>
     </section>
 
     <section class="activity-strip glass" id="activityCard">
@@ -163,7 +131,7 @@
 
     <div class="disclaimer">ENQUETE RECREATIVA • NÃO É RESULTADO ELEITORAL OFICIAL</div>
 
-    <button class="admin-toggle" id="adminToggle">⚙ CONTROLES DA LIVE</button>
+    <button class="admin-toggle more-btn" id="adminToggle" type="button" aria-label="Configurações">⋮</button>
 
     <section class="admin-panel hidden glass" id="adminPanel">
       <div class="admin-head"><div><span class="eyebrow">PAINEL DO CRIADOR</span><h2>Controle total</h2></div><button id="closeAdmin">✕</button></div>
@@ -177,7 +145,7 @@
         <div class="panel-block">
           <label>@usuário que está fazendo a LIVE</label>
           <div class="row"><input id="usernameInput" placeholder="ex: meuusuario" autocapitalize="off"><button id="connectBtn" class="primary">CONECTAR</button></div>
-          <div class="row top-gap"><button id="disconnectBtn">DESCONECTAR</button><button id="voiceBtn" class="voice-toggle">🔇 VOZ: DESLIGADA</button></div>
+          <div class="row top-gap"><button id="disconnectBtn">DESCONECTAR</button><button id="voiceBtn">🔊 ATIVAR VOZ</button></div>
           <small id="voiceStatus">Voz ainda não ativada</small>
           <small id="connectionMessage">Desconectado</small>
         </div>
@@ -236,8 +204,6 @@
   <div class="toast" id="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/app.js?v=12></script>
-<script src="/admin-fix.js?v=1"></script>
-<script src="/menu-admin.js?v=1"></script>
+  <script src="/app.js?v=clean-final-1"></script>
 </body>
 </html>
